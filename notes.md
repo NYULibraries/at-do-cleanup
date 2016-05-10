@@ -55,4 +55,9 @@ SELECT digitalObjectId, title, createdBy , lastUpdatedBy, metsIdentifier, archDe
 
 SELECT digitalObjectId, title, createdBy , lastUpdatedBy, metsIdentifier, archDescriptionInstancesId FROM DigitalObjects WHERE metsIdentifier in (select metsIdentifier from DigitalObjects where archDescriptionInstancesId IS NULL and createdBy = 'dlts' AND lastUpdatedBy = 'dlts') order by metsIdentifier;
 
+# this query identifies the DUPES
+SELECT digitalObjectId, title, metsIdentifier, dateExpression, dateBegin, dateEnd, created, lastUpdated, archDescriptionInstancesId FROM DigitalObjects WHERE archDescriptionInstancesId IS NULL and createdBy = 'dlts' AND lastUpdatedBy = 'dlts' and metsIdentifier <> '';
+
+# this query selects the DUPES and CURRENT records for the DUPES
 SELECT digitalObjectId, title, metsIdentifier, dateExpression, dateBegin, dateEnd, created, lastUpdated, archDescriptionInstancesId FROM DigitalObjects WHERE metsIdentifier in (select metsIdentifier from DigitalObjects where archDescriptionInstancesId IS NULL and createdBy = 'dlts' AND lastUpdatedBy = 'dlts' and metsIdentifier <> '') order by metsIdentifier ASC, lastUpdated DESC;
+
