@@ -28,33 +28,19 @@ include ATDOCleanup
 config = Config.new
 
 # connect to db
-client = Mysql2::Client.new(host: config.host,
+client = Mysql2::Client.new(host:     config.host,
                             username: config.user,
                             password: config.pass,
                             database: config.database)
 
-dup_query = "SELECT #{DO_ID_ATTR}, #{METS_ID_ATTR} \
-FROM #{DO_TABLE} \
-WHERE #{ARCH_INST_ID_ATTR} IS NULL \
-AND #{CREATED_BY_ATTR} = '#{CREATED_BY_VALUE}' \
-AND #{LAST_UPDATED_BY_ATTR} = '#{LAST_UPDATED_BY_VALUE}' \
-AND #{METS_ID_ATTR} <> ''"
-
-dups = client.query(dup_query)
+dups = client.query(Queries.dup_query)
 
 dups.each do |d|
   do_id   = d[DO_ID_ATTR]
   mets_id = d[METS_ID_ATTR]
 
-  auth_record_query = "SELECT #{DO_ID_ATTR}, #{METS_ID_ATTR} \
-FROM #{DO_TABLE} \
-WHERE #{ARCH_INST_ID_ATTR} IS NOT NULL \
-AND #{CREATED_BY_ATTR} = '#{CREATED_BY_VALUE}' \
-AND #{LAST_UPDATED_BY_ATTR} = '#{LAST_UPDATED_BY_VALUE}' \
-AND #{METS_ID_ATTR} = '#{mets_id}'"
-
-  auth_record = client.query(auth_record_query)
-  unless auth_record.count == 1
-    raise "ERROR: incorrect number of authoritative records (#{auth_record.count}) for metsIdentifier #{mets_id}"
+  current_record = client.query(Queries.current_record_query(mets_id: mets_id))
+  unless current_record.count == 1
+    raise "ERROR: incorrect number of current records (#{current_record.count}) for metsIdentifier #{mets_id}"
   end
 end
