@@ -1,0 +1,60 @@
+#!/usr/bin/env ruby
+#------------------------------------------------------------------------------
+# Overview
+#
+# This script is designed to delete duplicate DigitalObject records from 
+# Archivist's Toolkit databases.
+#
+# Database connection parameters can be specified via the following
+# environment variables:
+#       AT_DB_HOST
+#       AT_DB_USER
+#       AT_DB_PASSWORD
+#       AT_DB_DATABASE
+#
+# e.g.,
+#
+#   $ export AT_DB_HOST='localhost'
+#   $ export AT_DB_USER='root'
+#   $ export AT_DB_PASSWORD=''
+#   $ export AT_DB_DATABASE='AT_BAZ_QUUX'
+#
+#------------------------------------------------------------------------------
+require 'mysql2'
+
+# database table names, attribute names, and expected values
+DO_TABLE              = 'DigitalObjects'.freeze
+DO_ID_ATTR            = 'digitalObjectId'.freeze
+METS_ID_ATTR          = 'metsIdentifier'.freeze
+ARCH_INST_ID_ATTR     = 'archDescriptionInstancesId'.freeze
+CREATED_BY_ATTR       = 'createdBy'.freeze
+LAST_UPDATED_BY_ATTR  = 'lastUpdatedBy'.freeze
+CREATED_BY_VALUE      = 'dlts'.freeze
+LAST_UPDATED_BY_VALUE = 'dlts'.freeze
+
+# extract database connection parameters from environment
+host = ENV['AT_DB_HOST'] || 'localhost'
+user = ENV['AT_DB_USER'] || 'root'
+pass = ENV['AT_DB_PASSWORD'] || ''
+database = ENV['AT_DB_DATABASE']
+
+unless database
+  $stderr.puts 'ERROR: please set AT_DB_DATABASE environment variable'
+  exit 1
+end
+
+# connect to db
+client  = Mysql2::Client.new(host: host,
+                             username: user,
+                             password: pass,
+                             database: database)
+
+dup_query = "SELECT #{DO_ID_ATTR}, #{METS_ID_ATTR} \
+FROM #{DO_TABLE} \
+WHERE #{ARCH_INST_ID_ATTR} IS NULL \
+AND #{CREATED_BY_ATTR} = '#{CREATED_BY_VALUE}' \
+AND #{LAST_UPDATED_BY_ATTR} = '#{LAST_UPDATED_BY_VALUE}' \
+AND #{METS_ID_ATTR} <> ''"
+
+dups = client.query(dup_query)
+puts dups.count
