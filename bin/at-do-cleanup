@@ -25,22 +25,13 @@ require_relative '../lib/at_do_cleanup'
 
 include ATDOCleanup
 
-# extract database connection parameters from environment
-host     = ENV['AT_DB_HOST']     || 'localhost'
-user     = ENV['AT_DB_USER']     || 'root'
-pass     = ENV['AT_DB_PASSWORD'] || ''
-database = ENV['AT_DB_DATABASE']
-
-unless database
-  $stderr.puts 'ERROR: please set AT_DB_DATABASE environment variable'
-  exit 1
-end
+config = Config.new
 
 # connect to db
-client = Mysql2::Client.new(host: host,
-                            username: user,
-                            password: pass,
-                            database: database)
+client = Mysql2::Client.new(host: config.host,
+                            username: config.user,
+                            password: config.pass,
+                            database: config.database)
 
 dup_query = "SELECT #{DO_ID_ATTR}, #{METS_ID_ATTR} \
 FROM #{DO_TABLE} \
