@@ -29,7 +29,7 @@ Then:
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/at-do-cleanup.
+Bug reports and pull requests are welcome on GitHub at https://github.com/NYULibraries/at-do-cleanup.
 
 
 ## License
