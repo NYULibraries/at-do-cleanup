@@ -1,12 +1,11 @@
 # at-do-cleanup
 
 ## Overview
-This code is used to clean up dead Digital Objects from Archivist  
-Toolkit databases.
+This code is used to clean up duplicate `DigitalObjects` from Archivist's Toolkit databases.
 
 
 ## Status
-#### In Development
+#### IN DEVELOPMENT
 
 ## Overview
 
@@ -30,9 +29,9 @@ Then:
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/tvf.
+Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/at-do-cleanup.
 
 
 ## License
 
-The gem is available as open source under the terms of the [MIT License](http://opensource.org/licenses/MIT).
+The code is available as open source under the terms of the [MIT License](http://opensource.org/licenses/MIT).
