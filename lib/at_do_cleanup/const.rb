@@ -14,4 +14,7 @@ module ATDOCleanup
   CREATED_ATTR          = 'created'.freeze
   LAST_UPDATED_ATTR     = 'lastUpdated'.freeze
   ARCH_INST_ID_ATTR     = 'archDescriptionInstancesId'.freeze
+
+  FV_TABLE              = 'FileVersions'.freeze
+  URI_ATTR              = 'uri'.freeze
 end

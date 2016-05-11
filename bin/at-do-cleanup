@@ -2,7 +2,7 @@
 #------------------------------------------------------------------------------
 # Overview
 #
-# This script is designed to delete duplicate DigitalObject records from 
+# This script is designed to delete duplicate DigitalObject records from
 # Archivist's Toolkit databases.
 #
 # Database connection parameters can be specified via the following
@@ -42,7 +42,10 @@ dups.each do |d|
   unless results.count == 1
     raise "ERROR: incorrect number of authoritative records (#{results.count}) for metsIdentifier #{mets_id}"
   end
-  authoritative = DigitalObject.new(results.first)
+  auth = DigitalObject.new(results.first)
+  raise 'dupe failed dupe? test' unless DigitalObject.dupe?(auth: auth, dupe: dupe)
+
+  results = FileVersion.find_records_for_digital_object(client: client, do_id: dupe.send(DO_ID_ATTR))
   # puts DigitalObject.dupe?(auth: authoritative, dupe: dupe)
   # puts '=============================================================================='
   # puts dupe
