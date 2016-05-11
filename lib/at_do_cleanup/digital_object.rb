@@ -11,20 +11,20 @@ module ATDOCleanup
       a = params[:auth]
       d = params[:dupe]
       result = true
-      result &&= (a.metsIdentifier == d.metsIdentifier)
-      result &&= (a.title == d.title)
-      result &&= (a.dateExpression == d.dateExpression)
-      result &&= (a.dateBegin == d.dateBegin)
-      result &&= (a.dateEnd == d.dateEnd)
+      result &&= (a.send(METS_ID_ATTR) == d.send(METS_ID_ATTR))
+      result &&= (a.send(TITLE_ATTR) == d.send(TITLE_ATTR))
+      result &&= (a.send(DATE_EXPRESSION_ATTR) == d.send(DATE_EXPRESSION_ATTR))
+      result &&= (a.send(DATE_BEGIN_ATTR) == d.send(DATE_BEGIN_ATTR))
+      result &&= (a.send(DATE_END_ATTR) == d.send(DATE_END_ATTR))
 
-      result &&= (a.createdBy == d.createdBy)
-      result &&= (a.lastUpdatedBy == d.lastUpdatedBy)
-      result &&= (a.createdBy == 'dlts')
-      result &&= (a.lastUpdatedBy == 'dlts')
+      result &&= (a.send(CREATED_BY_ATTR) == d.send(CREATED_BY_ATTR))
+      result &&= (a.send(LAST_UPDATED_BY_ATTR) == d.send(LAST_UPDATED_BY_ATTR))
+      result &&= (a.send(CREATED_BY_ATTR) == CREATED_BY_VALUE)
+      result &&= (a.send(LAST_UPDATED_BY_ATTR) == LAST_UPDATED_BY_VALUE)
 
-      result &&= (a.created > d.created)
-      result &&= (a.lastUpdated > d.lastUpdated)
-      result && d.archDescriptionInstancesId.nil?
+      result &&= (a.send(CREATED_ATTR) > d.send(CREATED_ATTR))
+      result &&= (a.send(LAST_UPDATED_ATTR) > d.send(LAST_UPDATED_ATTR))
+      result && d.send(ARCH_INST_ID_ATTR).nil?
       # missing URI check
     end
   end
