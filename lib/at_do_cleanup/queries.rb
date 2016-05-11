@@ -3,7 +3,7 @@ module ATDOCleanup
   class Queries
     # select statement to detect duplicates
     def self.dup_query
-      "SELECT #{DO_ID_ATTR}, #{METS_ID_ATTR} \
+      "SELECT * \
 FROM #{DO_TABLE} \
 WHERE #{ARCH_INST_ID_ATTR} IS NULL \
 AND #{CREATED_BY_ATTR} = '#{CREATED_BY_VALUE}' \
@@ -15,7 +15,7 @@ AND #{METS_ID_ATTR} <> ''"
     def self.authoritative_record_query(params)
       raise 'missing parameter mets_id:' unless params[:mets_id]
 
-      "SELECT #{DO_ID_ATTR}, #{METS_ID_ATTR} \
+      "SELECT * \
 FROM #{DO_TABLE} \
 WHERE #{ARCH_INST_ID_ATTR} IS NOT NULL \
 AND #{CREATED_BY_ATTR} = '#{CREATED_BY_VALUE}' \
