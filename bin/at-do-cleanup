@@ -36,11 +36,9 @@ client = Mysql2::Client.new(host:     config.host,
 dups = client.query(Queries.dup_query)
 
 dups.each do |d|
-  do_id   = d[DO_ID_ATTR]
-  mets_id = d[METS_ID_ATTR]
-
-  current_record = client.query(Queries.current_record_query(mets_id: mets_id))
-  unless current_record.count == 1
-    raise "ERROR: incorrect number of current records (#{current_record.count}) for metsIdentifier #{mets_id}"
+  dupe = DigitalObject.new(d)
+  authoritative_record = client.query(Queries.authoritative_record_query(mets_id: dupe.send(METS_ID_ATTR)))
+  unless authoritative_record.count == 1
+    raise "ERROR: incorrect number of authoritative records (#{authoritative_record.count}) for metsIdentifier #{mets_id}"
   end
 end

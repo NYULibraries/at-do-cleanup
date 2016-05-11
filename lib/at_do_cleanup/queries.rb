@@ -12,7 +12,7 @@ AND #{METS_ID_ATTR} <> ''"
     end
 
     # find the record linked to a resource for the specified mets id
-    def self.current_record_query(params)
+    def self.authoritative_record_query(params)
       raise 'missing parameter mets_id:' unless params[:mets_id]
 
       "SELECT #{DO_ID_ATTR}, #{METS_ID_ATTR} \
