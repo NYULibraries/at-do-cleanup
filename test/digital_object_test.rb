@@ -9,7 +9,6 @@ class TestDigitalObject < Minitest::Test
   end
 
   def test_dupe
-
     d = DigitalObject.new(DUPE_HASH)
     a = DigitalObject.new(AUTHORITATIVE_HASH)
 
