@@ -33,12 +33,20 @@ client = Mysql2::Client.new(host:     config.host,
                             password: config.pass,
                             database: config.database)
 
-dups = client.query(Queries.dup_query)
+dups = DigitalObject.find_duplicate_records(client: client)
+puts dups.count
 
 dups.each do |d|
   dupe = DigitalObject.new(d)
-  authoritative_record = client.query(Queries.authoritative_record_query(mets_id: dupe.send(METS_ID_ATTR)))
-  unless authoritative_record.count == 1
-    raise "ERROR: incorrect number of authoritative records (#{authoritative_record.count}) for metsIdentifier #{mets_id}"
+#  results = client.query(Queries.authoritative_record_query(mets_id: dupe.send(METS_ID_ATTR)))
+  results = client.query(Queries.authoritative_record_query(mets_id: dupe.send(METS_ID_ATTR)))
+  unless results.count == 1
+    raise "ERROR: incorrect number of authoritative records (#{results.count}) for metsIdentifier #{mets_id}"
   end
+  authoritative = DigitalObject.new(results.first)
+  # puts DigitalObject.dupe?(auth: authoritative, dupe: dupe)
+  # puts '=============================================================================='
+  # puts dupe
+  # puts '------------------------------------------------------------------------------'
+  # puts authoritative
 end

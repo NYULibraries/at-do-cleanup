@@ -27,5 +27,22 @@ module ATDOCleanup
       result && d.send(ARCH_INST_ID_ATTR).nil?
       # missing URI check
     end
+
+    def self.find_duplicate_records(args)
+      client = args[:client]
+      query = "SELECT * \
+FROM #{DO_TABLE} \
+WHERE #{ARCH_INST_ID_ATTR} IS NULL \
+AND #{CREATED_BY_ATTR} = '#{CREATED_BY_VALUE}' \
+AND #{LAST_UPDATED_BY_ATTR} = '#{LAST_UPDATED_BY_VALUE}' \
+AND #{METS_ID_ATTR} <> ''"
+
+      client.query(query)
+    end
+
+    # def self.find_duplicate_records(client)
+    #   client.query(query)
+    # end
+    
   end
 end
