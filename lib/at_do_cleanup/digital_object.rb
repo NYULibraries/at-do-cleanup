@@ -40,9 +40,19 @@ AND #{METS_ID_ATTR} <> ''"
       client.query(query)
     end
 
-    # def self.find_duplicate_records(client)
-    #   client.query(query)
-    # end
-    
+    # find the record linked to a resource for the specified mets id
+    def self.find_authoritative_record(args)
+      client  = args[:client]
+      mets_id = args[:mets_id]
+      raise ArgumentError, 'missing parameter mets_id:' unless mets_id
+
+      query = "SELECT * \
+FROM #{DO_TABLE} \
+WHERE #{ARCH_INST_ID_ATTR} IS NOT NULL \
+AND #{CREATED_BY_ATTR} = '#{CREATED_BY_VALUE}' \
+AND #{LAST_UPDATED_BY_ATTR} = '#{LAST_UPDATED_BY_VALUE}' \
+AND #{METS_ID_ATTR} = '#{mets_id}'"
+      client.query(query)
+    end
   end
 end
