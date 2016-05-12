@@ -33,75 +33,83 @@ def get_client(config = Config.new)
                      database: config.database)
 end
 
-def get_duplicate_do_records(args)
+# get duplicate digital object records
+def get_duplicate_records(args)
   client = args[:client]
   DigitalObject.find_duplicate_records(client: client)
 end
 
-def process_dupe(dupe)
+def get_authoritative_do(args)
+  mets_id = args[:dupe].send(METS_ID_ATTR)
+  results = DigitalObject.find_authoritative_record(client: args[:client], mets_id: mets_id)
+  unless results.count == 1
+    raise "ERROR: incorrect number of authoritative records (#{results.count}) for metsIdentifier #{mets_id}"
+  end
+  DigitalObject.new(results.first)
 end
 
-def process_dupes(args)
-  client = args[:client]
-  dupes  = args[:dupes]
-  dupes.each do |d|
-    dupe = DigitalObject.new(d)
-    do_id   = dupe.send(DO_ID_ATTR)
-    mets_id = dupe.send(METS_ID_ATTR)
-    results = DigitalObject.find_authoritative_record(client: client, mets_id: mets_id)
-    unless results.count == 1
-      raise "ERROR: incorrect number of authoritative records (#{results.count}) for metsIdentifier #{mets_id}"
-    end
-    auth = DigitalObject.new(results.first)
-    raise 'dupe failed dupe? test' unless DigitalObject.dupe?(auth: auth, dupe: dupe)
+def assert_dupe(auth, dupe)
+  raise 'dupe failed dupe? test' unless DigitalObject.dupe?(auth: auth, dupe: dupe)
+end
 
-    results = FileVersion.find_records_for_digital_object(client: client, do_id: do_id)
-    if results.count < 1
-      $stderr.puts "WARNING: incorrect number of FileVersion records (#{results.count}) for digitalObjectId =  #{do_id}"
-    end
-
-    results.each do |r|
-      puts FileVersion.new(r)
-    end
-    # puts DigitalObject.dupe?(auth: authoritative, dupe: dupe)
-    # puts '=============================================================================='
-    # puts dupe
-    # puts '------------------------------------------------------------------------------'
-    # puts authoritative
+def get_file_version_records(args)
+  results = FileVersion.find_records_for_digital_object(client: args[:client],
+                                                        do_id: args[:dupe].send(DO_ID_ATTR))
+  if results.count < 1
+    $stderr.puts "WARNING: incorrect number of FileVersion records (#{results.count}) for digitalObjectId =  #{do_id}"
   end
+  puts "FileVersions: #{results.count}"
+  results
+end
+
+def delete_file_versions(args)
+  file_version_records = get_file_version_records(args)
+  file_version_records.each do |r|
+    puts FileVersion.new(r)
+  end
+end
+
+def delete_dupe(args)
+end
+
+def process_dupe(args)
+  auth = get_authoritative_do(args)
+  assert_dupe(auth, args[:dupe])
+  delete_file_versions(args)
+  delete_dupe(args)
+end
+
+def process_duplicate_records(args)
+  args[:duplicate_records].each do |d|
+    dupe = DigitalObject.new(d)
+    process_dupe(client: args[:client], dupe: dupe)
+  end
+end
+
+def begin_transaction(args)
+  args[:client].query('START TRANSACTION')
+end
+
+def rollback_transaction(args)
+  args[:client].query('ROLLBACK')
+end
+
+def commit_transaction(args)
+  args[:client].query('COMMIT')
 end
 
 #------------------------------------------------------------------------------
 # main routine
 #------------------------------------------------------------------------------
 client = get_client
-dupes = get_duplicate_do_records(client: client)
-puts dupes.count
+duplicate_records = get_duplicate_records(client: client)
+puts duplicate_records.count
 
-process_dupes(client: client, dupes: dupes)
-
-# dupes.each do |d|
-#   dupe = DigitalObject.new(d)
-#   do_id   = dupe.send(DO_ID_ATTR)
-#   mets_id = dupe.send(METS_ID_ATTR)
-#   results = DigitalObject.find_authoritative_record(client: client, mets_id: mets_id)
-#   unless results.count == 1
-#     raise "ERROR: incorrect number of authoritative records (#{results.count}) for metsIdentifier #{mets_id}"
-#   end
-#   auth = DigitalObject.new(results.first)
-#   raise 'dupe failed dupe? test' unless DigitalObject.dupe?(auth: auth, dupe: dupe)
-
-#   results = FileVersion.find_records_for_digital_object(client: client, do_id: do_id)
-#   if results.count < 1
-#     $stderr.puts "WARNING: incorrect number of FileVersion records (#{results.count}) for digitalObjectId =  #{do_id}"
-#   end
-
-#   results.each do |r|
-#     fv = FileVersion.new(r)
-#   end
-#   # puts DigitalObject.dupe?(auth: authoritative, dupe: dupe)
-#   # puts '=============================================================================='
-#   # puts dupe
-#   # puts '------------------------------------------------------------------------------'
-#   # puts authoritative
-# end
+begin_transaction(client: client)
+begin
+  process_duplicate_records(client: client, duplicate_records: duplicate_records)
+rescue
+  rollback_transaction(client: client)
+end
+# TEMPORARY
+rollback_transaction(client: client)
