@@ -25,21 +25,27 @@ require_relative '../lib/at_do_cleanup'
 
 include ATDOCleanup
 
-config = Config.new
+def get_client(config = Config.new)
+  # connect to db
+  Mysql2::Client.new(host:     config.host,
+                     username: config.user,
+                     password: config.pass,
+                     database: config.database)
+end
 
-# connect to db
-client = Mysql2::Client.new(host:     config.host,
-                            username: config.user,
-                            password: config.pass,
-                            database: config.database)
+def get_duplicate_do_records(client)
+  DigitalObject.find_duplicate_records(client: client)
+end
 
-dups = DigitalObject.find_duplicate_records(client: client)
+client = get_client
+dups = get_duplicate_do_records(client)
 puts dups.count
 
 dups.each do |d|
   dupe = DigitalObject.new(d)
-  do_id = dupe.send(DO_ID_ATTR)
-  results = DigitalObject.find_authoritative_record(client: client, mets_id: dupe.send(METS_ID_ATTR))
+  do_id   = dupe.send(DO_ID_ATTR)
+  mets_id = dupe.send(METS_ID_ATTR)
+  results = DigitalObject.find_authoritative_record(client: client, mets_id: mets_id)
   unless results.count == 1
     raise "ERROR: incorrect number of authoritative records (#{results.count}) for metsIdentifier #{mets_id}"
   end
@@ -47,13 +53,12 @@ dups.each do |d|
   raise 'dupe failed dupe? test' unless DigitalObject.dupe?(auth: auth, dupe: dupe)
 
   results = FileVersion.find_records_for_digital_object(client: client, do_id: do_id)
-  unless results.count == 1
-    raise "ERROR: incorrect number of FileVersion records (#{results.count}) for digitalObjectId =  #{do_id}"
+  if results.count < 1
+    $stderr.puts "WARNING: incorrect number of FileVersion records (#{results.count}) for digitalObjectId =  #{do_id}"
   end
 
   results.each do |r|
     fv = FileVersion.new(r)
-    puts "#{do_id}, #{fv}"
   end
   # puts DigitalObject.dupe?(auth: authoritative, dupe: dupe)
   # puts '=============================================================================='
