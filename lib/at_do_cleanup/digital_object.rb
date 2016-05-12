@@ -54,5 +54,25 @@ AND #{LAST_UPDATED_BY_ATTR} = '#{LAST_UPDATED_BY_VALUE}' \
 AND #{METS_ID_ATTR} = '#{mets_id}'"
       client.query(query)
     end
+
+    # .delete
+    # purpose:
+    #   delete a record from DO_TABLE using primary key DO_ID_ATTR
+    #
+    # arguments:
+    #   args[:client] = database client object to which queries are passed
+    #   args[:file_version] = an object that responds to .send(FILE_VERSION_ID_ATTR)
+    def self.delete(args)
+      client = args[:client]
+      digital_object = args[:digital_object]
+      raise ArgumentError, 'missing parameter digital_object:' unless digital_object
+
+      query = "DELETE \
+FROM #{DO_TABLE} \
+WHERE #{DO_ID_ATTR} = #{digital_object.send(DO_ID_ATTR)}"
+
+      puts query
+      client.query(query)
+    end
   end
 end
