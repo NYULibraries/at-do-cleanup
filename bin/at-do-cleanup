@@ -137,3 +137,4 @@ rescue StandardError, Mysql2::Error => error
 end
 # TEMPORARY
 rollback_transaction(client: client)
+exit status
