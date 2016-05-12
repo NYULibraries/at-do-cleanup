@@ -58,24 +58,41 @@ def get_file_version_records(args)
   if results.count < 1
     $stderr.puts "WARNING: incorrect number of FileVersion records (#{results.count}) for digitalObjectId =  #{do_id}"
   end
-  puts "FileVersions: #{results.count}"
   results
 end
 
 def delete_file_versions(args)
   file_version_records = get_file_version_records(args)
   file_version_records.each do |r|
-    puts FileVersion.new(r)
+    fv = FileVersion.new(r)
+    FileVersion.delete(client: args[:client], file_version: fv)
   end
 end
 
+def delete_arch_description_dates(args)
+end
+
+def delete_arch_description_subjects(args)
+end
+
+def delete_arch_description_names(args)
+end
+
+def delete_arch_description_repeating_data(args)
+end
+
 def delete_dupe(args)
+  DigitalObject.delete(client: args[:client], digital_object: args[:dupe])
 end
 
 def process_dupe(args)
   auth = get_authoritative_do(args)
   assert_dupe(auth, args[:dupe])
   delete_file_versions(args)
+  delete_arch_description_dates(args)
+  delete_arch_description_subjects(args)
+  delete_arch_description_names(args)
+  delete_arch_description_repeating_data(args)
   delete_dupe(args)
 end
 
@@ -87,29 +104,36 @@ def process_duplicate_records(args)
 end
 
 def begin_transaction(args)
+  puts "BEGIN TRANSACTION..."
   args[:client].query('START TRANSACTION')
 end
 
 def rollback_transaction(args)
+  puts "ROLLBACK"
   args[:client].query('ROLLBACK')
 end
 
 def commit_transaction(args)
+  puts "COMMIT"
   args[:client].query('COMMIT')
 end
 
 #------------------------------------------------------------------------------
 # main routine
 #------------------------------------------------------------------------------
-client = get_client
-duplicate_records = get_duplicate_records(client: client)
-puts duplicate_records.count
+status = 0
 
-begin_transaction(client: client)
 begin
+  client = get_client
+  duplicate_records = get_duplicate_records(client: client)
+  puts duplicate_records.count
+
+  begin_transaction(client: client)
   process_duplicate_records(client: client, duplicate_records: duplicate_records)
-rescue
+rescue StandardError, Mysql2::Error => error
   rollback_transaction(client: client)
+  $stderr.puts error.message
+  status = 1
 end
 # TEMPORARY
 rollback_transaction(client: client)
