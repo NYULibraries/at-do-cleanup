@@ -3,6 +3,21 @@ require 'ostruct'
 module ATDOCleanup
   # class stores attributes of DigitalObject records
   class DigitalObject
+    TABLE = 'DigitalObjects'.freeze
+    ATTRS = %w(
+               digitalObjectId
+               metsIdentifier
+               title
+               dateExpression
+               dateBegin
+               dateEnd
+               createdBy
+               lastUpdatedBy
+               created
+               lastUpdated
+               archDescriptionInstancesId
+    ).freeze
+
     def self.new(args)
       OpenStruct.new(args)
     end
