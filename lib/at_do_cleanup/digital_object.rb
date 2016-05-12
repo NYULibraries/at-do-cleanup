@@ -3,13 +3,13 @@ require 'ostruct'
 module ATDOCleanup
   # class stores attributes of DigitalObject records
   class DigitalObject
-    def self.new(params)
-      OpenStruct.new(params)
+    def self.new(args)
+      OpenStruct.new(args)
     end
 
-    def self.dupe?(params)
-      a = params[:auth]
-      d = params[:dupe]
+    def self.dupe?(args)
+      a = args[:auth]
+      d = args[:dupe]
       result = true
       result &&= (a.send(METS_ID_ATTR) == d.send(METS_ID_ATTR))
       result &&= (a.send(TITLE_ATTR) == d.send(TITLE_ATTR))
