@@ -16,5 +16,6 @@ module ATDOCleanup
   ARCH_INST_ID_ATTR     = 'archDescriptionInstancesId'.freeze
 
   FV_TABLE              = 'FileVersions'.freeze
+  FILE_VERSION_ID_ATTR  = 'fileVersionId'.freeze
   URI_ATTR              = 'uri'.freeze
 end
