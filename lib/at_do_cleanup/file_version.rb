@@ -29,7 +29,7 @@ WHERE #{DO_ID_ATTR} = #{digital_object_id}"
 
     # .delete
     # purpose:
-    #   delete a record from FV_TABLE using the FILE_VERSION_ID_ATTR attribute
+    #   delete a record from FV_TABLE using the primary key FILE_VERSION_ID_ATTR
     #
     # arguments:
     #   args[:client] = database client object to which queries are passed
