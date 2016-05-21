@@ -82,9 +82,15 @@ class Cleaner
     raise 'dupe failed dupe? test' unless DigitalObject.dupe?(auth: auth, dupe: dupe)
   end
 
-  def get_file_version_records(args)
-    results = FileVersion.find_records_for_digital_object(client: args[:client],
-                                                          do_id: args[:dupe].send(DO_ID_ATTR))
+  def get_results(args)
+    query = "SELECT * FROM #{args[:table]} WHERE #{args[:fk_attr]} = #{args[:fk_value]}"
+    client.query(query)
+  end
+
+  def get_file_version_records(do_id)
+    results = get_results(table:   'FileVersions',
+                          fk_attr: 'digitalObjectId',
+                          fk_value: do_id)
     if results.count < 1
       $stderr.puts "WARNING: incorrect number of FileVersion records (#{results.count}) for digitalObjectId =  #{do_id}"
     end
@@ -92,7 +98,7 @@ class Cleaner
   end
 
   def delete_file_versions(args)
-    file_version_records = get_file_version_records(args)
+    file_version_records = get_file_version_records(args[:dupe].send(DO_ID_ATTR))
     file_version_records.each do |r|
       fv = FileVersion.new(r)
       FileVersion.delete(client: args[:client], file_version: fv)
@@ -133,7 +139,7 @@ class Cleaner
     end
   end
 end
-  
+
 def get_client(config = Config.new)
   # connect to db
   Mysql2::Client.new(host:     config.host,
