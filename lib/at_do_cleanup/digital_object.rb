@@ -4,8 +4,7 @@ module ATDOCleanup
   # class stores attributes of DigitalObject records
   class DigitalObject
     TABLE = 'DigitalObjects'.freeze
-    ATTRS = %w(
-               digitalObjectId
+    ATTRS = %w(digitalObjectId
                metsIdentifier
                title
                dateExpression
