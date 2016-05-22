@@ -111,16 +111,39 @@ class Cleaner
                   fk_value: do_id)
   end
 
-  def delete_arch_description_dates(args)
+  def delete_arch_description_dates(do_id)
+    delete_record(table: 'ArchDescriptionDates',
+                  fk_attr: 'digitalObjectId',
+                  fk_value: do_id)
   end
 
-  def delete_arch_description_subjects(args)
+  def delete_assessments_digital_objects(do_id)
+    delete_record(table: 'AssessmentsDigitalObjects',
+                  fk_attr: 'digitalObjectId',
+                  fk_value: do_id)
   end
 
-  def delete_arch_description_names(args)
+  def delete_arch_description_names(do_id)
+    delete_record(table: 'ArchDescriptionNames',
+                  fk_attr: 'digitalObjectId',
+                  fk_value: do_id)
   end
 
-  def delete_arch_description_repeating_data(args)
+  def delete_arch_description_subjects(do_id)
+    delete_record(table: 'ArchDescriptionSubjects',
+                  fk_attr: 'digitalObjectId',
+                  fk_value: do_id)
+  end
+ 
+  def delete_arch_description_repeating_data(do_id)
+#ArchDescriptionRepeatingData(digitalObjectId)   FK DigitalObjects(digitalObjectId)
+#<--- ChronologyItems(parentId)     FK ArchDescriptionRepeatingData(archDescriptionRepeatingDataId) <--- Events(archDescStructDataItemId) FK ChronologyItems(archDescStructDataItemId)
+#<--- IndexItems(parentId)          FK ArchDescriptionRepeatingData(archDescriptionRepeatingDataId)
+#<--- BibItems(parentId)            FK ArchDescriptionRepeatingData(archDescriptionRepeatingDataId)
+#<--- ListOrderedItems(parentId)    FK ArchDescriptionRepeatingData(archDescriptionRepeatingDataId)
+#<--- ListDefinitionItems(parentId) FK ArchDescriptionRepeatingData(archDescriptionRepeatingDataId)
+
+    
   end
 
   def delete_dupe(args)
@@ -132,10 +155,11 @@ class Cleaner
     assert_dupe(auth, args[:dupe])
     do_id = args[:dupe].send(DO_ID_ATTR)
     delete_file_versions(do_id)
-    delete_arch_description_dates(args)
-    delete_arch_description_subjects(args)
-    delete_arch_description_names(args)
-    delete_arch_description_repeating_data(args)
+    delete_assessments_digital_objects(do_id)
+    delete_arch_description_dates(do_id)
+    delete_arch_description_names(do_id)
+    delete_arch_description_subjects(do_id)
+    delete_arch_description_repeating_data(do_id)
     delete_dupe(args)
   end
 
