@@ -33,7 +33,7 @@ DigitalObjects.archDescriptionInstancesId  IS NULL
 ```
 
 ## Proposed logic of the cleanup script is:
-
+```
 If all of these statements are true about two digital objects (DO):
 - have the same METS Identifier (e.g. RISM MC 1.ref121.1)
 - have the same Title
@@ -47,7 +47,10 @@ Define the duplicate as the one that is both:
 
 Then:
 - delete the duplicate
+```
 
+## Snippets
+```
 ------------------------------------------------------------------------------
 
 SELECT uri, digitalObjectId FROM FileVersions group by uri having count(*) >= 2;
@@ -61,8 +64,9 @@ SELECT digitalObjectId, title, metsIdentifier, dateExpression, dateBegin, dateEn
 # this query selects the DUPES and CURRENT records for the DUPES
 SELECT digitalObjectId, title, metsIdentifier, dateExpression, dateBegin, dateEnd, created, lastUpdated, archDescriptionInstancesId FROM DigitalObjects WHERE metsIdentifier in (select metsIdentifier from DigitalObjects where archDescriptionInstancesId IS NULL and createdBy = 'dlts' AND lastUpdatedBy = 'dlts' and metsIdentifier <> '') order by metsIdentifier ASC, lastUpdated DESC;
 
-
 ------------------------------------------------------------------------------
+```
+```
 https://github.com/brianmario/mysql2
 http://api.rubyonrails.org/classes/ActiveRecord/ConnectionAdapters/MysqlAdapter.html
 
@@ -89,13 +93,8 @@ results = client.query(dupe_query)
 results.count
 
 auth_query = "select digitalObjectId, metsIdentifier from DigitalObjects where archDescriptionInstancesId IS NOT NULL and createdBy = 'dlts' AND lastUpdatedBy = 'dlts' and metsIdentifier = '#{r['metsIdentifier']}'"
-
-
-
-
-
-
-
+```
+```
 Algorithm:
 find all duplicate records
 if duplicate record has corresponding "real" record; then
@@ -104,7 +103,8 @@ delete digitalObject using digitalObjectId as key;
   end
   
 confirm that all duplicate records have corresponding "real" records via metsId and archivalObjectId is not NULL
-
+```
+```
 ------------------------------------------------------------------------------
 DELETION SEQUENCE:
 DigitalObject(digitalObjectId)                  FK DigitalObjects(parentDigitalObjectId)
@@ -119,3 +119,4 @@ ArchDescriptionRepeatingData(digitalObjectId)   FK DigitalObjects(digitalObjectI
 <--- BibItems(parentId)            FK ArchDescriptionRepeatingData(archDescriptionRepeatingDataId)
 <--- ListOrderedItems(parentId)    FK ArchDescriptionRepeatingData(archDescriptionRepeatingDataId)
 <--- ListDefinitionItems(parentId) FK ArchDescriptionRepeatingData(archDescriptionRepeatingDataId)
+```
