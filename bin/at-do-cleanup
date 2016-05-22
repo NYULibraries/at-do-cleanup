@@ -32,6 +32,7 @@ class Cleaner
   end
 
   def clean!
+    status = 0
     begin
       duplicate_records = get_duplicate_records(client: client)
       puts duplicate_records.count
@@ -159,6 +160,18 @@ class Cleaner
                   fk_value: parent_id)
   end
 
+  def delete_list_ordered_item(parent_id)
+    delete_record(table: 'ListOrderedItems',
+                  fk_attr: 'parentId',
+                  fk_value: parent_id)
+  end
+
+  def delete_list_definition__item(parent_id)
+    delete_record(table: 'ListDefinitionItems',
+                  fk_attr: 'parentId',
+                  fk_value: parent_id)
+  end
+
   def delete_event(arch_desc_struct_data_item_id)
     delete_record(table: 'Events',
                   fk_attr: 'archDescStructDataItemId',
@@ -181,7 +194,12 @@ class Cleaner
       delete_chronology_item(id)
       delete_index_item(id)
       delete_bib_item(id)
+      delete_list_ordered_item(id)
     end
+
+    delete_record(table: 'ArchDescriptionRepeatingData',
+                  fk_attr: 'digitalObjectId',
+                  fk_value: do_id)
   end
 
   def delete_dupe(args)
