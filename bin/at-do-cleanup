@@ -105,14 +105,10 @@ class Cleaner
     results
   end
 
-  def delete_file_versions(args)
-    do_id = args[:dupe].send(DO_ID_ATTR)
-    file_version_records = get_file_version_records(do_id)
-    file_version_records.each do |r|
-      delete_record(table: 'FileVersions',
-                    fk_attr: 'fileVersionId',
-                    fk_value: r['fileVersionId'])
-    end
+  def delete_file_versions(do_id)
+    delete_record(table: 'FileVersions',
+                  fk_attr: 'digitalObjectId',
+                  fk_value: do_id)
   end
 
   def delete_arch_description_dates(args)
@@ -134,7 +130,8 @@ class Cleaner
   def process_dupe(args)
     auth = get_authoritative_do(args)
     assert_dupe(auth, args[:dupe])
-    delete_file_versions(args)
+    do_id = args[:dupe].send(DO_ID_ATTR)
+    delete_file_versions(do_id)
     delete_arch_description_dates(args)
     delete_arch_description_subjects(args)
     delete_arch_description_names(args)
