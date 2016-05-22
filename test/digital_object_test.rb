@@ -1,4 +1,4 @@
-require_relative './test_helper'
+require 'test_helper'
 require_relative '../lib/at_do_cleanup'
 
 class TestDigitalObject < Minitest::Test
