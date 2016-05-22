@@ -7,6 +7,7 @@ require_relative './at_do_cleanup/file_version'
 require_relative './at_do_cleanup/list_definition_item'
 require_relative './at_do_cleanup/list_ordered_item'
 require_relative './at_do_cleanup/bib_item'
+require_relative './at_do_cleanup/client'
 require_relative './at_do_cleanup/cleaner'
 
 module ATDOCleanup
