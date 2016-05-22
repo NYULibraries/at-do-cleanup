@@ -56,17 +56,17 @@ class Cleaner
   end
 
   def begin_transaction(args)
-    puts "BEGIN TRANSACTION..."
+    puts 'BEGIN TRANSACTION...'
     args[:client].query('START TRANSACTION')
   end
 
   def rollback_transaction(args)
-    puts "ROLLBACK"
+    puts 'ROLLBACK'
     args[:client].query('ROLLBACK')
   end
 
   def commit_transaction(args)
-    puts "COMMIT"
+    puts 'COMMIT'
     args[:client].query('COMMIT')
   end
 
@@ -239,22 +239,6 @@ end
 # main routine
 #------------------------------------------------------------------------------
 status = 0
-
 cleaner = Cleaner.new(client: get_client)
 status = cleaner.clean!
 exit status
-
-# begin
-#   duplicate_records = get_duplicate_records(client: client)
-#   puts duplicate_records.count
-
-#   begin_transaction(client: client)
-#   process_duplicate_records(client: client, duplicate_records: duplicate_records)
-# rescue StandardError, Mysql2::Error => error
-#   rollback_transaction(client: client)
-#   $stderr.puts error.message
-#   status = 1
-# end
-# # TEMPORARY
-# rollback_transaction(client: client)
-# exit status
