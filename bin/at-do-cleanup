@@ -2,7 +2,7 @@
 #------------------------------------------------------------------------------
 # Overview
 #
-# This script is designed to delete duplicate DigitalObject records from 
+# This script is designed to delete duplicate DigitalObject records from
 # Archivist's Toolkit databases.
 #
 # Database connection parameters can be specified via the following
@@ -20,27 +20,10 @@
 #   $ export AT_DB_DATABASE='AT_BAZ_QUUX'
 #
 #------------------------------------------------------------------------------
-require 'mysql2'
 require_relative '../lib/at_do_cleanup'
 
 include ATDOCleanup
 
-config = Config.new
-
-# connect to db
-client = Mysql2::Client.new(host:     config.host,
-                            username: config.user,
-                            password: config.pass,
-                            database: config.database)
-
-dups = client.query(Queries.dup_query)
-
-dups.each do |d|
-  do_id   = d[DO_ID_ATTR]
-  mets_id = d[METS_ID_ATTR]
-
-  current_record = client.query(Queries.current_record_query(mets_id: mets_id))
-  unless current_record.count == 1
-    raise "ERROR: incorrect number of current records (#{current_record.count}) for metsIdentifier #{mets_id}"
-  end
-end
+cleaner = Cleaner.new(client: Client.new)
+status = cleaner.clean!
+exit status

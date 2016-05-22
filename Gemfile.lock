@@ -1,12 +1,14 @@
 GEM
   remote: https://rubygems.org/
   specs:
+    minitest (5.8.4)
     mysql2 (0.3.21)
 
 PLATFORMS
   ruby
 
 DEPENDENCIES
+  minitest
   mysql2 (~> 0.3.21)
 
 BUNDLED WITH
