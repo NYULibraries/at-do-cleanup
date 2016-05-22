@@ -94,6 +94,7 @@ class Cleaner
     puts query
     client.query(query)
   end
+
   #------------------------------------------------------------------------------
   def get_file_version_records(do_id)
     results = get_results(table:   'FileVersions',
@@ -134,7 +135,24 @@ class Cleaner
                   fk_attr: 'digitalObjectId',
                   fk_value: do_id)
   end
- 
+
+  def delete_chronology_item(parent_id)
+    results = get_results(table: 'ChronologyItems',
+                          fk_attr: 'parentId',
+                          fk_value: parent_id)
+    results.each { |r| delete_event(r['archDescStructDataItemId']) }
+
+    delete_record(table: 'ChronologyItems',
+                  fk_attr: 'parentId',
+                  fk_value: parent_id)
+  end
+
+  def delete_event(arch_desc_struct_data_item_id)
+    delete_record(table: 'Events',
+                  fk_attr: 'archDescStructDataItemId',
+                  fk_value: arch_desc_struct_data_item_id)
+  end
+
   def delete_arch_description_repeating_data(do_id)
 #ArchDescriptionRepeatingData(digitalObjectId)   FK DigitalObjects(digitalObjectId)
 #<--- ChronologyItems(parentId)     FK ArchDescriptionRepeatingData(archDescriptionRepeatingDataId) <--- Events(archDescStructDataItemId) FK ChronologyItems(archDescStructDataItemId)
@@ -143,7 +161,10 @@ class Cleaner
 #<--- ListOrderedItems(parentId)    FK ArchDescriptionRepeatingData(archDescriptionRepeatingDataId)
 #<--- ListDefinitionItems(parentId) FK ArchDescriptionRepeatingData(archDescriptionRepeatingDataId)
 
-    
+    results = get_results(table:   'ArchDescriptionRepeatingData',
+                          fk_attr: 'digitalObjectId',
+                          fk_value: do_id)
+    results.each { |r| delete_chronology_item(r['archDescriptionRepeatingDataId']) }
   end
 
   def delete_dupe(args)
