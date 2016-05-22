@@ -147,6 +147,18 @@ class Cleaner
                   fk_value: parent_id)
   end
 
+  def delete_index_item(parent_id)
+    delete_record(table: 'IndexItems',
+                  fk_attr: 'parentId',
+                  fk_value: parent_id)
+  end
+
+  def delete_bib_item(parent_id)
+    delete_record(table: 'BibItems',
+                  fk_attr: 'parentId',
+                  fk_value: parent_id)
+  end
+
   def delete_event(arch_desc_struct_data_item_id)
     delete_record(table: 'Events',
                   fk_attr: 'archDescStructDataItemId',
@@ -164,7 +176,12 @@ class Cleaner
     results = get_results(table:   'ArchDescriptionRepeatingData',
                           fk_attr: 'digitalObjectId',
                           fk_value: do_id)
-    results.each { |r| delete_chronology_item(r['archDescriptionRepeatingDataId']) }
+    results.each do |r|
+      id = r['archDescriptionRepeatingDataId']
+      delete_chronology_item(id)
+      delete_index_item(id)
+      delete_bib_item(id)
+    end
   end
 
   def delete_dupe(args)
