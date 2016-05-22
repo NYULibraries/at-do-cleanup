@@ -57,28 +57,21 @@ module ATDOCleanup
       raise 'dupe failed dupe? test' unless DigitalObject.dupe?(auth: auth, dupe: dupe)
     end
 
-    #-----------------------------------------------------------------------------
     def get_results(args)
       query = "SELECT * FROM #{args[:table]} WHERE #{args[:fk_attr]} = #{args[:fk_value]}"
       client.query(query)
     end
 
-    #-----------------------------------------------------------------------------
     def delete_record(args)
       query = "DELETE FROM #{args[:table]} WHERE #{args[:fk_attr]} = #{args[:fk_value]}"
       puts query
       client.query(query)
     end
 
-    #------------------------------------------------------------------------------
     def get_file_version_records(do_id)
-      results = get_results(table:   'FileVersions',
-                            fk_attr: 'digitalObjectId',
-                            fk_value: do_id)
-      if results.count < 1
-        $stderr.puts "WARNING: incorrect number of FileVersion records (#{results.count}) for digitalObjectId =  #{do_id}"
-      end
-      results
+      get_results(table:   'FileVersions',
+                  fk_attr: 'digitalObjectId',
+                  fk_value: do_id)
     end
 
     def delete_file_versions(do_id)
@@ -115,6 +108,7 @@ module ATDOCleanup
       results = get_results(table: 'ChronologyItems',
                             fk_attr: 'parentId',
                             fk_value: parent_id)
+
       results.each { |r| delete_event(r['archDescStructDataItemId']) }
 
       delete_record(table: 'ChronologyItems',
