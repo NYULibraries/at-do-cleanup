@@ -12,7 +12,7 @@ module ATDOCleanup
         puts duplicate_records.count
 
         begin_transaction
-        process_duplicate_records(client: client, duplicate_records: duplicate_records)
+        process_duplicate_records(duplicate_records)
       rescue StandardError, Mysql2::Error => error
         rollback_transaction
         $stderr.puts error.message
@@ -187,10 +187,10 @@ module ATDOCleanup
       delete_dupe(args)
     end
 
-    def process_duplicate_records(args)
-      args[:duplicate_records].each do |d|
+    def process_duplicate_records(duplicate_records)
+      duplicate_records.each do |d|
         dupe = DigitalObject.new(d)
-        process_dupe(client: args[:client], dupe: dupe)
+        process_dupe(client: client, dupe: dupe)
       end
     end
   end
