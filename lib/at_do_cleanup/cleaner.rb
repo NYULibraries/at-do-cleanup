@@ -44,9 +44,9 @@ module ATDOCleanup
       client.query('COMMIT')
     end
 
-    def get_authoritative_do(args)
-      mets_id = args[:dupe].send(METS_ID_ATTR)
-      results = DigitalObject.find_authoritative_record(client: args[:client], mets_id: mets_id)
+    def get_authoritative_do(dupe)
+      mets_id = dupe.send(METS_ID_ATTR)
+      results = DigitalObject.find_authoritative_record(client: client, mets_id: mets_id)
       unless results.count == 1
         raise "ERROR: incorrect number of authoritative records (#{results.count}) for metsIdentifier #{mets_id}"
       end
@@ -175,7 +175,8 @@ module ATDOCleanup
     end
 
     def process_dupe(args)
-      auth = get_authoritative_do(args)
+      dupe = args[:dupe]
+      auth = get_authoritative_do(dupe)
       assert_dupe(auth, args[:dupe])
       do_id = args[:dupe].send(DO_ID_ATTR)
       delete_file_versions(do_id)
