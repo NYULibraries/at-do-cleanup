@@ -20,10 +20,19 @@
 #   $ export AT_DB_DATABASE='AT_BAZ_QUUX'
 #
 #------------------------------------------------------------------------------
+require 'optparse'
 require_relative '../lib/at_do_cleanup'
 
 include ATDOCleanup
 
-cleaner = Cleaner.new(client: Client.new)
+options = {}
+OptionParser.new do |opts|
+  opts.banner = 'Usage: at-do-cleanup [options]'
+  opts.on('-c', '--commit', 'commit cleanup operation') do |c|
+    options[:commit] = c
+  end
+end.parse!
+
+cleaner = Cleaner.new(client: Client.new, options: options)
 status = cleaner.clean!
 exit status
