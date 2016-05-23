@@ -174,8 +174,7 @@ module ATDOCleanup
       DigitalObject.delete(client: client, digital_object: dupe)
     end
 
-    def process_dupe(args)
-      dupe = args[:dupe]
+    def process_dupe(dupe)
       auth = get_authoritative_do(dupe)
       assert_dupe(auth, dupe)
       do_id = dupe.send(DO_ID_ATTR)
@@ -191,7 +190,7 @@ module ATDOCleanup
     def process_duplicate_records(duplicate_records)
       duplicate_records.each do |d|
         dupe = DigitalObject.new(d)
-        process_dupe(client: client, dupe: dupe)
+        process_dupe(dupe)
       end
     end
   end
