@@ -170,22 +170,22 @@ module ATDOCleanup
                     fk_value: do_id)
     end
 
-    def delete_dupe(args)
-      DigitalObject.delete(client: args[:client], digital_object: args[:dupe])
+    def delete_dupe(dupe)
+      DigitalObject.delete(client: client, digital_object: dupe)
     end
 
     def process_dupe(args)
       dupe = args[:dupe]
       auth = get_authoritative_do(dupe)
-      assert_dupe(auth, args[:dupe])
-      do_id = args[:dupe].send(DO_ID_ATTR)
+      assert_dupe(auth, dupe)
+      do_id = dupe.send(DO_ID_ATTR)
       delete_file_versions(do_id)
       delete_assessments_digital_objects(do_id)
       delete_arch_description_dates(do_id)
       delete_arch_description_names(do_id)
       delete_arch_description_subjects(do_id)
       delete_arch_description_repeating_data(do_id)
-      delete_dupe(args)
+      delete_dupe(dupe)
     end
 
     def process_duplicate_records(duplicate_records)
