@@ -11,14 +11,14 @@ module ATDOCleanup
         duplicate_records = get_duplicate_records(client: client)
         puts duplicate_records.count
 
-        begin_transaction(client: client)
+        begin_transaction
         process_duplicate_records(client: client, duplicate_records: duplicate_records)
       rescue StandardError, Mysql2::Error => error
-        rollback_transaction(client: client)
+        rollback_transaction
         $stderr.puts error.message
         status = 1
       end
-      rollback_transaction(client: client)
+      rollback_transaction
       status
     end
 
@@ -29,19 +29,19 @@ module ATDOCleanup
       DigitalObject.find_duplicate_records(client: client)
     end
 
-    def begin_transaction(args)
+    def begin_transaction
       puts 'BEGIN TRANSACTION...'
-      args[:client].query('START TRANSACTION')
+      client.query('START TRANSACTION')
     end
 
-    def rollback_transaction(args)
+    def rollback_transaction
       puts 'ROLLBACK'
-      args[:client].query('ROLLBACK')
+      client.query('ROLLBACK')
     end
 
-    def commit_transaction(args)
+    def commit_transaction
       puts 'COMMIT'
-      args[:client].query('COMMIT')
+      client.query('COMMIT')
     end
 
     def get_authoritative_do(args)
