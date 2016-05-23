@@ -8,7 +8,7 @@ module ATDOCleanup
     def clean!
       status = 0
       begin
-        duplicate_records = get_duplicate_records
+        duplicate_records = find_duplicate_records
         puts duplicate_records.count
 
         begin_transaction
@@ -25,7 +25,7 @@ module ATDOCleanup
     private
 
     # get duplicate digital object records
-    def get_duplicate_records
+    def find_duplicate_records
       DigitalObject.find_duplicate_records(client: client)
     end
 
