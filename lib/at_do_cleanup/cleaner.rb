@@ -1,28 +1,34 @@
 module ATDOCleanup
   class Cleaner
-    attr_reader :client
+    attr_reader :client, :commit
     def initialize(args)
-      @client = args[:client]
+      @client  = args[:client]
+      options  = args[:options]    || {}
+      @commit  = options[:commit]  || false
     end
 
     def clean!
       status = 0
       begin
         duplicate_records = find_duplicate_records
-        puts duplicate_records.count
+        verbose_print duplicate_records.count
 
         begin_transaction
         process_duplicate_records(duplicate_records)
+        commit ? commit_transaction : rollback_transaction
+
       rescue StandardError, Mysql2::Error => error
         rollback_transaction
         $stderr.puts error.message
         status = 1
       end
-      rollback_transaction
       status
     end
 
     private
+    def verbose_print(str)
+      puts str 
+    end
 
     # get duplicate digital object records
     def find_duplicate_records
@@ -30,17 +36,17 @@ module ATDOCleanup
     end
 
     def begin_transaction
-      puts 'BEGIN TRANSACTION...'
+      verbose_print 'BEGIN TRANSACTION...'
       client.query('START TRANSACTION')
     end
 
     def rollback_transaction
-      puts 'ROLLBACK'
+      verbose_print 'ROLLBACK'
       client.query('ROLLBACK')
     end
 
     def commit_transaction
-      puts 'COMMIT'
+      verbose_print 'COMMIT'
       client.query('COMMIT')
     end
 
@@ -64,7 +70,7 @@ module ATDOCleanup
 
     def delete_record(args)
       query = "DELETE FROM #{args[:table]} WHERE #{args[:fk_attr]} = #{args[:fk_value]}"
-      puts query
+      verbose_print query
       client.query(query)
     end
 
