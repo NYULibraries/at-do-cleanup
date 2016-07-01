@@ -11,7 +11,7 @@ module ATDOCleanup
       status = 0
       begin
         duplicate_records = find_duplicate_records
-        verbose_print duplicate_records.count
+        verbose_print "duplicate-record candidate pool size: #{duplicate_records.count}"
 
         begin_transaction
         process_duplicate_records(duplicate_records)
@@ -57,7 +57,7 @@ module ATDOCleanup
     end
 
     def assert_dupe(auth, dupe)
-      raise 'dupe failed dupe? test' unless DigitalObject.dupe?(auth: auth, dupe: dupe)
+      raise 'dupe failed dupe? test' unless DigitalObject.dupe?(auth: auth, dupe: dupe, client: client)
     end
 
     def get_results(args)
@@ -181,7 +181,7 @@ module ATDOCleanup
       auth = get_authoritative_do(dupe)
 
       if auth.nil?
-        puts "WARNING: no authoritative record found for #{dupe}"
+        puts "WARNING: no authoritative record found for #{dupe.send(METS_ID_ATTR)}"
       else
         assert_dupe(auth, dupe)
         do_id = dupe.send(DO_ID_ATTR)
