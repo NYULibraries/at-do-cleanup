@@ -52,11 +52,8 @@ module ATDOCleanup
 
     def get_authoritative_do(dupe)
       mets_id = dupe.send(METS_ID_ATTR)
-      results = DigitalObject.find_authoritative_record(client: client, mets_id: mets_id)
-      unless results.count == 1
-        raise "ERROR: incorrect number of authoritative records (#{results.count}) for metsIdentifier #{mets_id}"
-      end
-      DigitalObject.new(results.first)
+      result = DigitalObject.find_authoritative_record(client: client, mets_id: mets_id)
+      result.nil? ? nil : DigitalObject.new(result)
     end
 
     def assert_dupe(auth, dupe)
@@ -182,15 +179,20 @@ module ATDOCleanup
 
     def process_dupe(dupe)
       auth = get_authoritative_do(dupe)
-      assert_dupe(auth, dupe)
-      do_id = dupe.send(DO_ID_ATTR)
-      delete_file_versions(do_id)
-      delete_assessments_digital_objects(do_id)
-      delete_arch_description_dates(do_id)
-      delete_arch_description_names(do_id)
-      delete_arch_description_subjects(do_id)
-      delete_arch_description_repeating_data(do_id)
-      delete_dupe(dupe)
+
+      if auth.nil?
+        puts "WARNING: no authoritative record found for #{dupe}"
+      else
+        assert_dupe(auth, dupe)
+        do_id = dupe.send(DO_ID_ATTR)
+        delete_file_versions(do_id)
+        delete_assessments_digital_objects(do_id)
+        delete_arch_description_dates(do_id)
+        delete_arch_description_names(do_id)
+        delete_arch_description_subjects(do_id)
+        delete_arch_description_repeating_data(do_id)
+        delete_dupe(dupe)
+      end
     end
 
     def process_duplicate_records(duplicate_records)

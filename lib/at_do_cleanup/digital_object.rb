@@ -47,8 +47,6 @@ module ATDOCleanup
       query = "SELECT * \
 FROM #{DO_TABLE} \
 WHERE #{ARCH_INST_ID_ATTR} IS NULL \
-AND #{CREATED_BY_ATTR} = '#{CREATED_BY_VALUE}' \
-AND #{LAST_UPDATED_BY_ATTR} = '#{LAST_UPDATED_BY_VALUE}' \
 AND #{METS_ID_ATTR} <> ''"
 
       client.query(query)
@@ -63,14 +61,12 @@ AND #{METS_ID_ATTR} <> ''"
       query = "SELECT * \
 FROM #{DO_TABLE} \
 WHERE #{ARCH_INST_ID_ATTR} IS NOT NULL \
-AND #{CREATED_BY_ATTR} = '#{CREATED_BY_VALUE}' \
-AND #{LAST_UPDATED_BY_ATTR} = '#{LAST_UPDATED_BY_VALUE}' \
 AND #{METS_ID_ATTR} = '#{mets_id}'"
       results = client.query(query)
       if results.count > 1
         raise AuthRecordError, "ERROR: too many records matching authoritative record criteria found for metsIdentifier #{mets_id}"
       end
-      results.count == 0 ? nil : results
+      results.count == 0 ? nil : results.first
     end
 
     # .delete
