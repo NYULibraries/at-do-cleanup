@@ -16,7 +16,8 @@ module ATDOCleanup
                lastUpdated
                archDescriptionInstancesId
     ).freeze
-
+    URI_REGEXP = %r(http://webarchives\.cdlib\.org)
+    
     def self.new(args)
       OpenStruct.new(args)
     end
@@ -24,6 +25,8 @@ module ATDOCleanup
     def self.dupe?(args)
       a = args[:auth]
       d = args[:dupe]
+      c = args[:client]
+
       result = true
       result &&= (a.send(METS_ID_ATTR) == d.send(METS_ID_ATTR))
       result &&= (a.send(TITLE_ATTR) == d.send(TITLE_ATTR))
@@ -38,8 +41,11 @@ module ATDOCleanup
 
       result &&= (a.send(CREATED_ATTR) > d.send(CREATED_ATTR))
       result &&= (a.send(LAST_UPDATED_ATTR) > d.send(LAST_UPDATED_ATTR))
-      result && d.send(ARCH_INST_ID_ATTR).nil?
-      # missing URI check
+      result &&= d.send(ARCH_INST_ID_ATTR).nil?
+
+      # if REGEXP matches, then keep record (it is NOT considered a dupe)
+      fv = get_file_version(dupe: d, client: c)
+      result && URI_REGEXP.match(fv[URI_ATTR]).nil?
     end
 
     def self.find_duplicate_records(args)
@@ -87,6 +93,15 @@ WHERE #{DO_ID_ATTR} = #{digital_object.send(DO_ID_ATTR)}"
 
       puts query
       client.query(query)
+    end
+
+    def self.get_file_version(args)
+      client = args[:client]
+      dupe   = args[:dupe]
+      query = "SELECT * FROM #{FV_TABLE} WHERE #{DO_ID_ATTR} = #{dupe.send(DO_ID_ATTR)}"
+      results = client.query(query)
+      raise "ERROR: too many file versions!}" if results.count > 1
+      results.first
     end
   end
 end
