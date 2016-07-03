@@ -25,7 +25,7 @@ DUPE_HASH = {
   'archDescriptionInstancesId' => nil,
   'componentId' => '',
   'repositoryId' => 2
-}
+}.freeze
 
 AUTHORITATIVE_HASH = {
   'digitalObjectId' => 8716,
@@ -47,7 +47,7 @@ AUTHORITATIVE_HASH = {
   'label' => '',
   'objectOrder' => 0,
   'parentDigitalObjectId' => nil,
-  'archDescriptionInstancesId' => 11516334,
+  'archDescriptionInstancesId' => 11_516_334,
   'componentId' => '',
   'repositoryId' => 2
-}
+}.freeze
