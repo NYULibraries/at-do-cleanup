@@ -1,12 +1,13 @@
 duplicate-record candidate pool size: 214
 BEGIN TRANSACTION...
-WARNING: no authoritative record found for RG 9.8-81
-WARNING: no authoritative record found for NYU.ARCH.PHOTO.00001.ref5509.2
-WARNING: no authoritative record found for NYU.ARCH.PHOTO.00001.ref5509.1
-WARNING: no authoritative record found for NYU.ARCH.PHOTO.00001.ref5504.2
-WARNING: no authoritative record found for NYU.ARCH.PHOTO.00001.ref5504.1
-WARNING: no authoritative record found for NYU.ARCH.PHOTO.00001.ref5407.2
-WARNING: no authoritative record found for NYU.ARCH.PHOTO.00001.ref5407.1
+WARNING: no file version for RG 9.8-81 digitalObjectId = 7931
+WARNING: no authoritative record found for RG 9.8-81 digitalObjectId = 7931
+WARNING: no authoritative record found for NYU.ARCH.PHOTO.00001.ref5509.2 digitalObjectId = 8074
+WARNING: no authoritative record found for NYU.ARCH.PHOTO.00001.ref5509.1 digitalObjectId = 8075
+WARNING: no authoritative record found for NYU.ARCH.PHOTO.00001.ref5504.2 digitalObjectId = 8078
+WARNING: no authoritative record found for NYU.ARCH.PHOTO.00001.ref5504.1 digitalObjectId = 8079
+WARNING: no authoritative record found for NYU.ARCH.PHOTO.00001.ref5407.2 digitalObjectId = 8138
+WARNING: no authoritative record found for NYU.ARCH.PHOTO.00001.ref5407.1 digitalObjectId = 8139
 DELETE FROM FileVersions WHERE digitalObjectId = 8177
 DELETE FROM AssessmentsDigitalObjects WHERE digitalObjectId = 8177
 DELETE FROM ArchDescriptionDates WHERE digitalObjectId = 8177
