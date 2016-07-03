@@ -15,4 +15,12 @@ class TestDigitalObject < Minitest::Test
     assert(DigitalObject.dupe?(auth: a, dupe: d))
     refute(DigitalObject.dupe?(auth: a, dupe: a))
   end
+
+  def test_attr_equal?
+    d = DigitalObject.new(DUPE_HASH)
+    a = DigitalObject.new(AUTHORITATIVE_HASH)
+
+    assert(DigitalObject.attr_equal?('title', a, d), 'attr_equal? true failed')
+    refute(DigitalObject.attr_equal?('digitalObjectId', a, d), 'attr_equal? false failed')
+  end
 end
