@@ -25,7 +25,7 @@ module ATDOCleanup
     def self.attr_equal?(attr, a, d)
       result = (a.send(attr) == d.send(attr))
       unless result
-        $stderr.puts "WARNING: attr_equal failed: #{attr} : #{a.send(attr)}  : #{d.send(attr)}"
+        $stderr.puts "WARNING: attr_equal failed: #{attr} : #{a.send(attr)} != #{d.send(attr)}"
       end
       result
     end
@@ -47,8 +47,7 @@ module ATDOCleanup
       result &&= d.send(ARCH_INST_ID_ATTR).nil?
 
       # if REGEXP matches, then keep record (it is NOT considered a dupe)
-      # fv = get_file_version(dupe: d, client: c)
-      # result && URI_REGEXP.match(fv[URI_ATTR]).nil?
+      result && URI_REGEXP.match(d.send(FILE_VERSION_URI_ATTR)).nil?
     end
 
     def self.find_duplicate_records(args)
