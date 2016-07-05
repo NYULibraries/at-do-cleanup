@@ -59,6 +59,7 @@ module ATDOCleanup
     def assert_dupe(auth, dupe)
       unless DigitalObject.dupe?(auth: auth, dupe: dupe, client: client)
         msg = "AUTHORITATIVE:\n#{DigitalObject.pretty_format(auth)}\nDUPLICATE:\n#{DigitalObject.pretty_format(dupe)}"
+        $stderr.puts '----------------------------------------------------------------------'
         raise "failed dupe? test\n#{msg}"
       end
     end
@@ -216,7 +217,11 @@ module ATDOCleanup
       query = "SELECT * FROM #{FV_TABLE} WHERE #{DO_ID_ATTR} = #{duplicate_record[DO_ID_ATTR]}"
       # puts query
       results = client.query(query)
-      raise "ERROR: too many file versions! \n #{results}" if results.count > 1
+      if results.count > 1
+        msg = ''
+        results.each { |r| msg << r.to_s }
+        raise "ERROR: too many file versions! \n #{msg}" 
+      end
       results.first
     end
   end
