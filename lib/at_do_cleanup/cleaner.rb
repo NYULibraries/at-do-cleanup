@@ -11,7 +11,7 @@ module ATDOCleanup
       status = 0
       begin
         duplicate_records = find_duplicate_records
-        verbose_print duplicate_records.count
+        verbose_print "duplicate-record candidate pool size: #{duplicate_records.count}"
 
         begin_transaction
         process_duplicate_records(duplicate_records)
@@ -27,7 +27,7 @@ module ATDOCleanup
 
     private
     def verbose_print(str)
-      puts str 
+      puts str
     end
 
     # get duplicate digital object records
@@ -57,7 +57,11 @@ module ATDOCleanup
     end
 
     def assert_dupe(auth, dupe)
-      raise 'dupe failed dupe? test' unless DigitalObject.dupe?(auth: auth, dupe: dupe)
+      unless DigitalObject.dupe?(auth: auth, dupe: dupe, client: client)
+        msg = "AUTHORITATIVE:\n#{DigitalObject.pretty_format(auth)}\nDUPLICATE:\n#{DigitalObject.pretty_format(dupe)}"
+        $stderr.puts '----------------------------------------------------------------------'
+        raise "failed dupe? test\n#{msg}"
+      end
     end
 
     def get_results(args)
@@ -181,7 +185,7 @@ module ATDOCleanup
       auth = get_authoritative_do(dupe)
 
       if auth.nil?
-        puts "WARNING: no authoritative record found for #{dupe}"
+        puts "WARNING: no authoritative record found for #{dupe.send(METS_ID_ATTR)} digitalObjectId = #{dupe.send(DO_ID_ATTR)}"
       else
         assert_dupe(auth, dupe)
         do_id = dupe.send(DO_ID_ATTR)
@@ -197,9 +201,28 @@ module ATDOCleanup
 
     def process_duplicate_records(duplicate_records)
       duplicate_records.each do |d|
+        fv = get_file_version(d)
+        if fv
+          # puts "#{d} FileVersion: #{fv}"
+          d[FILE_VERSION_URI_ATTR] = fv[FILE_VERSION_URI_ATTR]
+        else
+          puts "WARNING: no file version for #{d[METS_ID_ATTR]} digitalObjectId = #{d[DO_ID_ATTR]}"
+        end
         dupe = DigitalObject.new(d)
         process_dupe(dupe)
       end
+    end
+
+    def get_file_version(duplicate_record)
+      query = "SELECT * FROM #{FV_TABLE} WHERE #{DO_ID_ATTR} = #{duplicate_record[DO_ID_ATTR]}"
+      # puts query
+      results = client.query(query)
+      if results.count > 1
+        msg = ''
+        results.each { |r| msg << r.to_s }
+        raise "ERROR: too many file versions! \n #{msg}" 
+      end
+      results.first
     end
   end
 end

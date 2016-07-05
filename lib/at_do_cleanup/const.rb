@@ -18,6 +18,7 @@ module ATDOCleanup
   FV_TABLE              = 'FileVersions'.freeze
   FILE_VERSION_ID_ATTR  = 'fileVersionId'.freeze
   URI_ATTR              = 'uri'.freeze
+  FILE_VERSION_URI_ATTR = 'file_version_uri'.freeze
 
   AD_REPEATING_DATA_TABLE   = 'ArchDescriptionRepeatingData'.freeze
   AD_REPEATING_DATA_ID_ATTR = 'archDescriptionRepeatingDataId'.freeze

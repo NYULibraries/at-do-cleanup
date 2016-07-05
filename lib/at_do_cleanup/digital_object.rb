@@ -16,30 +16,54 @@ module ATDOCleanup
                lastUpdated
                archDescriptionInstancesId
     ).freeze
+    URI_REGEXP = %r(http://webarchives\.cdlib\.org)
 
     def self.new(args)
       OpenStruct.new(args)
     end
 
+    def self.attr_equal?(attr, a, d)
+      result = (a.send(attr) == d.send(attr))
+      unless result
+        $stderr.puts "WARNING: attr_equal failed: #{attr} : '#{a.send(attr)}' != '#{d.send(attr)}'"
+      end
+      result
+    end
+
+    def self.attr_greater_than?(attr, a, d)
+      result = (a.send(attr) > d.send(attr))
+      unless result
+        $stderr.puts "WARNING: attr_greater_than? failed: #{attr} : '#{a.send(attr)}' !> '#{d.send(attr)}'"
+      end
+      result
+    end
+
+    def self.pretty_format(arg)
+      str = ''
+      arg.each_pair {|k, v| str << sprintf("%27s --> %s\n", k, v) }
+      str
+    end
+
     def self.dupe?(args)
       a = args[:auth]
       d = args[:dupe]
+      c = args[:client]
+
       result = true
-      result &&= (a.send(METS_ID_ATTR) == d.send(METS_ID_ATTR))
-      result &&= (a.send(TITLE_ATTR) == d.send(TITLE_ATTR))
-      result &&= (a.send(DATE_EXPRESSION_ATTR) == d.send(DATE_EXPRESSION_ATTR))
-      result &&= (a.send(DATE_BEGIN_ATTR) == d.send(DATE_BEGIN_ATTR))
-      result &&= (a.send(DATE_END_ATTR) == d.send(DATE_END_ATTR))
+      [METS_ID_ATTR, TITLE_ATTR, DATE_EXPRESSION_ATTR,
+       DATE_BEGIN_ATTR, DATE_END_ATTR, CREATED_BY_ATTR,
+       LAST_UPDATED_BY_ATTR].each do |attr|
+        result &&= attr_equal?(attr, a, d)
+      end
 
-      result &&= (a.send(CREATED_BY_ATTR) == d.send(CREATED_BY_ATTR))
-      result &&= (a.send(LAST_UPDATED_BY_ATTR) == d.send(LAST_UPDATED_BY_ATTR))
-      result &&= (a.send(CREATED_BY_ATTR) == CREATED_BY_VALUE)
-      result &&= (a.send(LAST_UPDATED_BY_ATTR) == LAST_UPDATED_BY_VALUE)
+      [CREATED_ATTR, LAST_UPDATED_ATTR].each do |attr|
+        result &&= attr_greater_than?(attr, a, d)
+      end
 
-      result &&= (a.send(CREATED_ATTR) > d.send(CREATED_ATTR))
-      result &&= (a.send(LAST_UPDATED_ATTR) > d.send(LAST_UPDATED_ATTR))
-      result && d.send(ARCH_INST_ID_ATTR).nil?
-      # missing URI check
+      result &&= d.send(ARCH_INST_ID_ATTR).nil?
+
+      # if REGEXP matches, then keep record (it is NOT considered a dupe)
+      result && URI_REGEXP.match(d.send(FILE_VERSION_URI_ATTR)).nil?
     end
 
     def self.find_duplicate_records(args)
@@ -87,6 +111,20 @@ WHERE #{DO_ID_ATTR} = #{digital_object.send(DO_ID_ATTR)}"
 
       puts query
       client.query(query)
+    end
+
+    def self.get_file_version(args)
+      client = args[:client]
+      dupe   = args[:dupe]
+      query = "SELECT * FROM #{FV_TABLE} WHERE #{DO_ID_ATTR} = #{dupe.send(DO_ID_ATTR)}"
+      results = client.query(query)
+      if results.count > 1
+        $stderr.puts "ERROR  : too many file versions!"
+        $stderr.puts "DUPE   : #{dupe}"
+        $stderr.puts "RESULTS: #{results}"
+        raise "ERROR: too many file versions!"
+      end
+      results.first
     end
   end
 end
