@@ -30,6 +30,14 @@ module ATDOCleanup
       result
     end
 
+    def self.attr_greater_than?(attr, a, d)
+      result = (a.send(attr) > d.send(attr))
+      unless result
+        $stderr.puts "WARNING: attr_greater_than? failed: #{attr} : #{a.send(attr)} !> #{d.send(attr)}"
+      end
+      result
+    end
+
     def self.dupe?(args)
       a = args[:auth]
       d = args[:dupe]
@@ -42,8 +50,10 @@ module ATDOCleanup
         result &&= attr_equal?(attr, a, d)
       end
 
-      result &&= (a.send(CREATED_ATTR) > d.send(CREATED_ATTR))
-      result &&= (a.send(LAST_UPDATED_ATTR) > d.send(LAST_UPDATED_ATTR))
+      [CREATED_ATTR, LAST_UPDATED_ATTR].each do |attr|
+        result &&= attr_greater_than?(attr, a, d)
+      end
+
       result &&= d.send(ARCH_INST_ID_ATTR).nil?
 
       # if REGEXP matches, then keep record (it is NOT considered a dupe)
