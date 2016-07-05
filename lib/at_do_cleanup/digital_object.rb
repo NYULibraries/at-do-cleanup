@@ -47,16 +47,13 @@ module ATDOCleanup
     def self.dupe?(args)
       a = args[:auth]
       d = args[:dupe]
-      c = args[:client]
 
       result = true
-      [METS_ID_ATTR, TITLE_ATTR, DATE_EXPRESSION_ATTR,
-       DATE_BEGIN_ATTR, DATE_END_ATTR, CREATED_BY_ATTR,
-       LAST_UPDATED_BY_ATTR].each do |attr|
+      [METS_ID_ATTR].each do |attr|
         result &&= attr_equal?(attr, a, d)
       end
 
-      [CREATED_ATTR, LAST_UPDATED_ATTR].each do |attr|
+      [CREATED_ATTR].each do |attr|
         result &&= attr_greater_than?(attr, a, d)
       end
 
