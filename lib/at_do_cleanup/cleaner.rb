@@ -1,5 +1,3 @@
-require 'awesome_print'
-
 module ATDOCleanup
   class Cleaner
     attr_reader :client, :commit
@@ -59,11 +57,9 @@ module ATDOCleanup
     end
 
     def assert_dupe(auth, dupe)
-      msg="auth: #{auth}\ndupe: #{dupe}"
+      msg="auth: #{auth} \n dupe: #{dupe}"
       unless DigitalObject.dupe?(auth: auth, dupe: dupe, client: client)
-        ap "auth: #{auth.marshal_dump}"
-        ap "dupe: #{dupe.marshal_dump}"
-        raise "failed dupe? test\n#{msg}"
+        raise "failed dupe? test\n #{msg}"
       end
     end
 
@@ -217,16 +213,10 @@ module ATDOCleanup
     end
 
     def get_file_version(duplicate_record)
-      # puts "---------------> duplicate record"
-      # puts duplicate_record
-      # puts duplicate_record[DO_ID_ATTR]
       query = "SELECT * FROM #{FV_TABLE} WHERE #{DO_ID_ATTR} = #{duplicate_record[DO_ID_ATTR]}"
       # puts query
       results = client.query(query)
-      raise "ERROR: too many file versions!}" if results.count > 1
-      # puts "---------------> results first"
-      # puts "'#{results.first}'"
-      # puts "'#{results.first.class}'"
+      raise "ERROR: too many file versions! \n #{results}" if results.count > 1
       results.first
     end
   end
