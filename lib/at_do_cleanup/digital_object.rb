@@ -38,6 +38,12 @@ module ATDOCleanup
       result
     end
 
+    def self.pretty_format(arg)
+      str = ''
+      arg.each_pair {|k, v| str << sprintf("%27s --> %s\n", k, v) }
+      str
+    end
+
     def self.dupe?(args)
       a = args[:auth]
       d = args[:dupe]

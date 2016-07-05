@@ -57,9 +57,9 @@ module ATDOCleanup
     end
 
     def assert_dupe(auth, dupe)
-      msg="auth: #{auth} \n dupe: #{dupe}"
       unless DigitalObject.dupe?(auth: auth, dupe: dupe, client: client)
-        raise "failed dupe? test\n #{msg}"
+        msg = "AUTHORITATIVE:\n#{DigitalObject.pretty_format(auth)}\nDUPLICATE:\n#{DigitalObject.pretty_format(dupe)}"
+        raise "failed dupe? test\n#{msg}"
       end
     end
 
