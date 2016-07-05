@@ -188,6 +188,9 @@ module ATDOCleanup
         puts "WARNING: no authoritative record found for #{dupe.send(METS_ID_ATTR)} digitalObjectId = #{dupe.send(DO_ID_ATTR)}"
       else
         assert_dupe(auth, dupe)
+        puts '----------------------------------------------------------------------'
+        puts "AUTHORITATIVE:\n#{DigitalObject.pretty_format(auth)}\nDUPLICATE:\n#{DigitalObject.pretty_format(dupe)}"
+
         do_id = dupe.send(DO_ID_ATTR)
         delete_file_versions(do_id)
         delete_assessments_digital_objects(do_id)
@@ -220,7 +223,7 @@ module ATDOCleanup
       if results.count > 1
         msg = ''
         results.each { |r| msg << r.to_s }
-        raise "ERROR: too many file versions! \n #{msg}" 
+        raise "ERROR: too many file versions! \n #{msg}"
       end
       results.first
     end
