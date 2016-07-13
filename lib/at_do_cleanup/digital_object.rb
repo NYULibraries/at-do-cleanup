@@ -118,19 +118,5 @@ WHERE #{DO_ID_ATTR} = #{digital_object.send(DO_ID_ATTR)}"
       puts query
       client.query(query)
     end
-
-    # def self.get_file_version(args)
-    #   client = args[:client]
-    #   dupe   = args[:dupe]
-    #   query = "SELECT * FROM #{FV_TABLE} WHERE #{DO_ID_ATTR} = #{dupe.send(DO_ID_ATTR)}"
-    #   results = client.query(query)
-    #   if results.count > 1
-    #     $stderr.puts "ERROR  : too many file versions!"
-    #     $stderr.puts "DUPE   : #{dupe}"
-    #     $stderr.puts "RESULTS: #{results}"
-    #     raise "ERROR: too many file versions!"
-    #   end
-    #   results.first
-    # end
   end
 end
