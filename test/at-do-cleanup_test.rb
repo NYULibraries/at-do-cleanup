@@ -8,7 +8,7 @@ class TestAtDoCleanup < MiniTest::Test
 
   def test_output_and_status
     o, e, s = Open3.capture3(COMMAND)
-    assert(s.exitstatus == 0, 'incorrect exit status, did you export AT_DB_DATABASE=AT_NYU_ARCHIVES ?')
+    assert(s.exitstatus == 0, 'incorrect exit status, did you export AT_DB_DATABASE=AT_NYU_ARCHIVES_TEST ?')
     assert_equal(EXPECTED_OUTPUT, o, 'stdout output mismatch')
     assert_equal('', e, 'stderr output mismatch')
   end
