@@ -204,28 +204,24 @@ module ATDOCleanup
 
     def process_duplicate_records(duplicate_records)
       duplicate_records.each do |d|
-        fv = get_file_version(d)
-        if fv
-          # puts "#{d} FileVersion: #{fv}"
-          d[FILE_VERSION_URI_ATTR] = fv[FILE_VERSION_URI_ATTR]
-        else
-          puts "WARNING: no file version for #{d[METS_ID_ATTR]} digitalObjectId = #{d[DO_ID_ATTR]}"
-        end
+        d[FILE_VERSION_URI_ATTR] = get_file_version_uris(d)
         dupe = DigitalObject.new(d)
         process_dupe(dupe)
       end
     end
 
-    def get_file_version(duplicate_record)
-      query = "SELECT * FROM #{FV_TABLE} WHERE #{DO_ID_ATTR} = #{duplicate_record[DO_ID_ATTR]}"
-      # puts query
+    def get_file_version_uris(d)
+      retval = []
+      query = "SELECT * FROM #{FV_TABLE} WHERE #{DO_ID_ATTR} = #{d[DO_ID_ATTR]}"
       results = client.query(query)
-      if results.count > 1
-        msg = ''
-        results.each { |r| msg << r.to_s }
-        raise "ERROR: too many file versions! \n #{msg}"
+      if results.count == 0
+        puts "WARNING: no file version for #{d[METS_ID_ATTR]} digitalObjectId = #{d[DO_ID_ATTR]}"
+      elsif results.count > 0
+        results.each do |r|
+          retval << r[URI_ATTR]
+        end
       end
-      results.first
+      retval
     end
   end
 end
