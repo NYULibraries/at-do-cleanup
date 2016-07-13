@@ -44,6 +44,15 @@ module ATDOCleanup
       str
     end
 
+    def self.check_file_version_match(d)
+      result = false
+      a = d.send(FILE_VERSION_URI_ATTR) || []
+      a.each do |fv|
+        result ||= !(URI_REGEXP.match(fv).nil?)
+      end
+      result
+    end
+
     def self.dupe?(args)
       a = args[:auth]
       d = args[:dupe]
@@ -60,7 +69,7 @@ module ATDOCleanup
       result &&= d.send(ARCH_INST_ID_ATTR).nil?
 
       # if REGEXP matches, then keep record (it is NOT considered a dupe)
-      result && URI_REGEXP.match(d.send(FILE_VERSION_URI_ATTR)).nil?
+      result && !check_file_version_match(d)
     end
 
     def self.find_duplicate_records(args)
@@ -110,18 +119,18 @@ WHERE #{DO_ID_ATTR} = #{digital_object.send(DO_ID_ATTR)}"
       client.query(query)
     end
 
-    def self.get_file_version(args)
-      client = args[:client]
-      dupe   = args[:dupe]
-      query = "SELECT * FROM #{FV_TABLE} WHERE #{DO_ID_ATTR} = #{dupe.send(DO_ID_ATTR)}"
-      results = client.query(query)
-      if results.count > 1
-        $stderr.puts "ERROR  : too many file versions!"
-        $stderr.puts "DUPE   : #{dupe}"
-        $stderr.puts "RESULTS: #{results}"
-        raise "ERROR: too many file versions!"
-      end
-      results.first
-    end
+    # def self.get_file_version(args)
+    #   client = args[:client]
+    #   dupe   = args[:dupe]
+    #   query = "SELECT * FROM #{FV_TABLE} WHERE #{DO_ID_ATTR} = #{dupe.send(DO_ID_ATTR)}"
+    #   results = client.query(query)
+    #   if results.count > 1
+    #     $stderr.puts "ERROR  : too many file versions!"
+    #     $stderr.puts "DUPE   : #{dupe}"
+    #     $stderr.puts "RESULTS: #{results}"
+    #     raise "ERROR: too many file versions!"
+    #   end
+    #   results.first
+    # end
   end
 end

@@ -12,10 +12,14 @@ class TestDigitalObject < Minitest::Test
     d = DigitalObject.new(DUPE_HASH)
     a = DigitalObject.new(AUTHORITATIVE_HASH)
     u = DigitalObject.new(DUPE_HASH_WITH_PROTECTED_URI)
-
+    v = DigitalObject.new(DUPE_HASH_WITH_MULTIPLE_NON_PROTECTED_URIS)
+    x = DigitalObject.new(DUPE_HASH_WITH_MULTIPLE_URIS_ONE_PROTECTED)
+    
     assert(DigitalObject.dupe?(auth: a, dupe: d), 'dupe? assertion failed')
     refute(DigitalObject.dupe?(auth: a, dupe: a), 'dupe? refutation failed')
     refute(DigitalObject.dupe?(auth: a, dupe: u), 'dupe? URI refutation failed')
+    assert(DigitalObject.dupe?(auth: a, dupe: v), 'dupe? assertion failed for multiple non-protected URIs')
+    refute(DigitalObject.dupe?(auth: a, dupe: x), 'dupe? assertion failed for multiple URIs, one protected')
   end
 
   def test_attr_equal?
